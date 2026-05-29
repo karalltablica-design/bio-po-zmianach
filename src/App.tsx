@@ -56,7 +56,10 @@ import {
   Zap,
   Scan,
   Gauge,
-  CircleDot
+  CircleDot,
+  ChevronDown,
+  ChevronUp,
+  FolderClosed
 } from 'lucide-react';
 
 import {
@@ -86,6 +89,20 @@ export default function App() {
   });
   
   const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [isInneOpen, setIsInneOpen] = useState<boolean>(false);
+
+  // Auto-expand "Inne" dropdown if any sub-tab under it is active
+  useEffect(() => {
+    const inneTabIds = [
+      'changeover', 'spectroscopy', 'kinetics', 'laminar', 'fluidwear', 'exploded',
+      'spectrogram', 'pvd', 'moisture', 'laserProfiler', 'compressionSim', 'dieBoreTracker',
+      'dustWindTunnel', 'cryoTempering', 'tribometricScanner'
+    ];
+    if (inneTabIds.includes(activeTab)) {
+      setIsInneOpen(true);
+    }
+  }, [activeTab]);
+
   const [selectedHistoryToolId, setSelectedHistoryToolId] = useState<string | null>(null);
   const [globalSearchQuery, setGlobalSearchQuery] = useState<string>('');
 
@@ -146,7 +163,18 @@ export default function App() {
 
   const [presses, setPresses] = useState<TabletPress[]>(() => {
     const stored = localStorage.getItem('biofarm_presses');
-    return stored ? JSON.parse(stored) : INITIAL_PRESSES;
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as TabletPress[];
+        return parsed.map((p) => {
+          const matching = INITIAL_PRESSES.find((ip) => ip.id === p.id);
+          return matching ? { ...p, nazwa: matching.nazwa } : p;
+        });
+      } catch (e) {
+        return INITIAL_PRESSES;
+      }
+    }
+    return INITIAL_PRESSES;
   });
 
   const products = INITIAL_PRODUCTS;
@@ -503,28 +531,14 @@ export default function App() {
                     </button>
                   </div>
 
-                  {/* Sidebar list items matching Image 1 layout */}
+                  {/* Sidebar list items with collapsible 'Inne' visualizers */}
                   <nav className="space-y-1">
+                    {/* Main Core Tabs */}
                     {[
                       { id: 'dashboard', label: 'Panel główny', icon: <LayoutDashboard className="w-4 h-4" /> },
                       { id: 'form', label: 'Dodawanie kompletów', icon: <PlusSquare className="w-4 h-4" /> },
                       { id: 'database', label: 'Baza stempli i matryc', icon: <Database className="w-4 h-4" /> },
                       { id: 'presses', label: 'Tabletkarki / Głowice', icon: <Cpu className="w-4 h-4" /> },
-                      { id: 'changeover', label: 'Zmiana formatowa MOC', icon: <Layers className="w-4 h-4" /> },
-                      { id: 'spectroscopy', label: 'Spektrofotometria 3D', icon: <Activity className="w-4 h-4" /> },
-                      { id: 'kinetics', label: 'Dynamika stempli 3D', icon: <RotateCw className="w-4 h-4" /> },
-                      { id: 'laminar', label: 'Laminar i Termo 3D', icon: <Wind className="w-4 h-4" /> },
-                      { id: 'fluidwear', label: 'Rozpad Powłoki DLC', icon: <Activity className="w-4 h-4" /> },
-                      { id: 'exploded', label: 'Eksplozja Głowicy CAD', icon: <Layers className="w-4 h-4" /> },
-                      { id: 'spectrogram', label: 'Akustyka Wiru 3D', icon: <Volume2 className="w-4 h-4 text-emerald-400 animate-pulse" /> },
-                      { id: 'pvd', label: 'Hologram PVD 3D', icon: <Zap className="w-4 h-4 text-cyan-450 animate-bounce" /> },
-                      { id: 'moisture', label: 'Mikroskop Wilgoci', icon: <Droplet className="w-4 h-4 text-sky-405 animate-pulse" /> },
-                      { id: 'laserProfiler', label: 'Skaner Laserowy [A]', icon: <Scan className="w-4 h-4 text-cyan-400 animate-pulse" /> },
-                      { id: 'compressionSim', label: 'Zagęszczanie & Siły [B]', icon: <Gauge className="w-4 h-4 text-purple-400" /> },
-                      { id: 'dieBoreTracker', label: 'Kalibrator Gniazd [C]', icon: <CircleDot className="w-4 h-4 text-[#00ca9a]" /> },
-                      { id: 'dustWindTunnel', label: 'Tunel Powietrzny [I]', icon: <Wind className="w-4 h-4 text-cyan-305 animate-pulse" /> },
-                      { id: 'cryoTempering', label: 'Mrożenie i Siła [II]', icon: <Thermometer className="w-4 h-4 text-orange-450 animate-bounce" /> },
-                      { id: 'tribometricScanner', label: 'Tribologia DLC [III]', icon: <Zap className="w-4 h-4 text-yellow-405" /> },
                       { id: 'reports', label: 'Raporty i analityka', icon: <TrendingUp className="w-4 h-4" /> },
                     ].map((tab) => {
                       const isActive = activeTab === tab.id;
@@ -550,6 +564,89 @@ export default function App() {
                         </button>
                       );
                     })}
+
+                    {/* Collapsible Dropdown for 'Inne' items */}
+                    <div className="pt-2">
+                      <button
+                        onClick={() => setIsInneOpen(!isInneOpen)}
+                        className={`w-full text-left px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center justify-between transition-all cursor-pointer ${
+                          [
+                            'changeover', 'spectroscopy', 'kinetics', 'laminar', 'fluidwear', 'exploded',
+                            'spectrogram', 'pvd', 'moisture', 'laserProfiler', 'compressionSim', 'dieBoreTracker',
+                            'dustWindTunnel', 'cryoTempering', 'tribometricScanner'
+                          ].includes(activeTab)
+                            ? isLight
+                              ? 'bg-[#001e40]/5 text-[#001e40] border-l-4 border-cyan-605 font-bold'
+                              : 'bg-white/5 text-[#00ca9a]'
+                            : isLight
+                              ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                              : 'text-slate-400 hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        <span className="flex items-center gap-3">
+                          <FolderClosed className="w-4 h-4" />
+                          <span>Inne</span>
+                        </span>
+                        {isInneOpen ? (
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        ) : (
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+
+                      <AnimatePresence initial={false}>
+                        {isInneOpen && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden pl-3 mt-1.5 space-y-1 border-l border-slate-200/50 dark:border-white/5"
+                          >
+                            {[
+                              { id: 'changeover', label: 'Zmiana formatowa MOC', icon: <Layers className="w-4 h-4 text-sky-400" /> },
+                              { id: 'spectroscopy', label: 'Spektrofotometria 3D', icon: <Activity className="w-4 h-4 text-indigo-400" /> },
+                              { id: 'kinetics', label: 'Dynamika stempli 3D', icon: <RotateCw className="w-4 h-4 text-blue-400" /> },
+                              { id: 'laminar', label: 'Laminar i Termo 3D', icon: <Wind className="w-4 h-4 text-teal-400" /> },
+                              { id: 'fluidwear', label: 'Rozpad Powłoki DLC', icon: <Activity className="w-4 h-4 text-emerald-400" /> },
+                              { id: 'exploded', label: 'Eksplozja Głowicy CAD', icon: <Layers className="w-4 h-4 text-purple-400" /> },
+                              { id: 'spectrogram', label: 'Akustyka Wiru 3D', icon: <Volume2 className="w-4 h-4 text-emerald-400 animate-pulse" /> },
+                              { id: 'pvd', label: 'Hologram PVD 3D', icon: <Zap className="w-4 h-4 text-cyan-400 animate-bounce" /> },
+                              { id: 'moisture', label: 'Mikroskop Wilgoci', icon: <Droplet className="w-4 h-4 text-sky-450 animate-pulse" /> },
+                              { id: 'laserProfiler', label: 'Skaner Laserowy [A]', icon: <Scan className="w-4 h-4 text-cyan-400 animate-pulse" /> },
+                              { id: 'compressionSim', label: 'Zagęszczanie & Siły [B]', icon: <Gauge className="w-4 h-4 text-purple-400" /> },
+                              { id: 'dieBoreTracker', label: 'Kalibrator Gniazd [C]', icon: <CircleDot className="w-4 h-4 text-[#00ca9a]" /> },
+                              { id: 'dustWindTunnel', label: 'Tunel Powietrzny [I]', icon: <Wind className="w-4 h-4 text-cyan-500 animate-pulse" /> },
+                              { id: 'cryoTempering', label: 'Mrożenie i Siła [II]', icon: <Thermometer className="w-4 h-4 text-orange-400 animate-bounce" /> },
+                              { id: 'tribometricScanner', label: 'Tribologia DLC [III]', icon: <Zap className="w-4 h-4 text-yellow-500" /> },
+                            ].map((tab) => {
+                              const isActive = activeTab === tab.id;
+                              return (
+                                <button
+                                  key={tab.id}
+                                  id={`nav-${tab.id}`}
+                                  onClick={() => setActiveTab(tab.id)}
+                                  onDragEnter={() => setActiveTab(tab.id)}
+                                  onDragOver={(e) => e.preventDefault()}
+                                  className={`w-full text-left px-3 py-2 rounded-lg text-[11px] font-semibold uppercase tracking-wider flex items-center gap-2.5 transition-all cursor-pointer ${
+                                    isActive
+                                      ? isLight
+                                        ? 'bg-[#001e40] text-white font-extrabold shadow-sm'
+                                        : 'bg-biofarm-blue text-white shadow-sm border-r-2 border-[#00ca9a]'
+                                      : isLight
+                                        ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 font-medium'
+                                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                  }`}
+                                >
+                                  {tab.icon}
+                                  <span className="truncate">{tab.label}</span>
+                                </button>
+                              );
+                            })}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </nav>
 
                   {/* Drag-and-drop GMP tutorial card */}

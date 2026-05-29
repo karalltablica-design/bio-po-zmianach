@@ -196,7 +196,7 @@ export const INITIAL_TOOLSETS: ToolSet[] = [
 export const INITIAL_PRESSES: TabletPress[] = [
   {
     id: 'PRESS-FETTE-1',
-    nazwa: 'T1 - Fette Compacting 2200ic',
+    nazwa: 'Fette Compacting 2200iC',
     typ: 'Rotacyjna',
     kompatybilnyStandard: ['EU-D', 'EU-B'],
     stacjaCount: 42,
@@ -206,7 +206,7 @@ export const INITIAL_PRESSES: TabletPress[] = [
   },
   {
     id: 'PRESS-KILIAN-1',
-    nazwa: 'T2 - KILIAN SYNTHESIS 500',
+    nazwa: 'Kilian Synthesis 500',
     typ: 'Rotacyjna',
     kompatybilnyStandard: ['EU-B', 'TSM-B'],
     stacjaCount: 36,
@@ -216,7 +216,7 @@ export const INITIAL_PRESSES: TabletPress[] = [
   },
   {
     id: 'PRESS-KORSCH-1',
-    nazwa: 'T3 - KORSCH XL400 MFP',
+    nazwa: 'Korsch XL400 MFP',
     typ: 'Rotacyjna',
     kompatybilnyStandard: ['EU-D', 'EU-B', 'TSM-B'],
     stacjaCount: 29,
@@ -226,7 +226,7 @@ export const INITIAL_PRESSES: TabletPress[] = [
   },
   {
     id: 'PRESS-ROMACO-1',
-    nazwa: 'T4 - KORSCH XL400 SL',
+    nazwa: 'Korsch XL400 SL',
     typ: 'Rotacyjna',
     kompatybilnyStandard: ['EU-B'],
     stacjaCount: 32,
