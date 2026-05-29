@@ -1,0 +1,10 @@
+{
+  "name": "Remix: Biofarm - System Zarządzania Oprzyrządowaniem",
+  "description": "Nowoczesny system zarządzania narzędziami, kompletami stempli i matryc dla firmy Biofarm, oparty na nowoczesnym stylu i animacjach.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
